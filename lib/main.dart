@@ -1,126 +1,170 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'package:flutter/rendering.dart';
 
-void main() => runApp(new MyApp());
+void main() => {runApp(App())};
 
-class MyApp extends StatelessWidget {
-  //  final wordPair = new WordPair.random();
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Startup Name Generator',
-      home: new RandomWords(),
-      theme: new ThemeData(
-        primaryColor: Colors.white,
+    return MaterialApp(
+      title: '第一个app',
+      home: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('第一个app2'),
+        ),
+        body: ListView(
+          children: <Widget>[
+            Image.asset('images/coast.jpg',
+                height: 240, width: 500, fit: BoxFit.fill),
+            Container(
+              padding: EdgeInsets.all(16),
+              child: Column(children: <Widget>[
+                AddressWidget(),
+                ButtonsWidget(),
+                TextContent()
+              ]),
+            )
+          ],
+        ),
       ),
     );
   }
 }
 
-class RandomWords extends StatefulWidget {
-  @override
-  createState() => new RandomWordsState();
-}
-
-// class RandomWordsState extends State<RandomWords> {
-//   @override
-//   Widget build(BuildContext context) {
-//     final wordPair = new WordPair.random();
-//     return new Text(wordPair.asPascalCase);
-//   }
-// }
-
-class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _saved = new Set<WordPair>();
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          final tiles = _saved.map(
-            (pair) {
-              return new ListTile(
-                title: new Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
-            },
-          );
-          final divided = ListTile.divideTiles(
-            context: context,
-            tiles: tiles,
-          ).toList();
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('Saved Suggestions'),
-            ),
-            body: new ListView(children: divided),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSuggestions() {
-    return new ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        // 对于每个建议的单词对都会调用一次itemBuilder，然后将单词对添加到ListTile行中
-        // 在偶数行，该函数会为单词对添加一个ListTile row.
-        // 在奇数行，该函数会添加一个分割线widget，来分隔相邻的词对。
-        // 注意，在小屏幕上，分割线看起来可能比较吃力。
-        itemBuilder: (context, i) {
-          // 在每一列之前，添加一个1像素高的分隔线widget
-          if (i.isOdd) return new Divider();
-
-          // 语法 "i ~/ 2" 表示i除以2，但返回值是整形（向下取整），比如i为：1, 2, 3, 4, 5
-          // 时，结果为0, 1, 1, 2, 2， 这可以计算出ListView中减去分隔线后的实际单词对数量
-          final index = i ~/ 2;
-          // 如果是建议列表中最后一个单词对
-          if (index >= _suggestions.length) {
-            // ...接着再生成10个单词对，然后添加到建议列表
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return _buildRow(_suggestions[index]);
-        });
-  }
-
-  Widget _buildRow(WordPair pair) {
-    final alreadySaved = _saved.contains(pair);
-    return new ListTile(
-      title: new Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: new Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-      ),
-      onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else {
-            _saved.add(pair);
-          }
-        });
-      },
-    );
-  }
-
+class AddressWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // final wordPair = new WordPair.random(); // 删除这两行
-    // return new Text(wordPair.asPascalCase);
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Startup Name Generator2'),
-        actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.list), onPressed: _pushSaved),
+    return Container(
+        child: Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('风景区地址4', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('广东省深圳市宝安区西乡街道324Dk',
+                      style: TextStyle(color: Colors.grey)),
+                ]),
+          ),
+          Icon(
+            Icons.star,
+            color: Colors.grey,
+          ),
+          Text(
+            '60',
+            style: TextStyle(color: Colors.grey),
+          )
         ],
       ),
-      body: _buildSuggestions(),
+    ));
+  }
+}
+
+class ButtonsWidget extends StatelessWidget {
+  final TextStyle ts = TextStyle(color: Colors.grey);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: ButtonWrapper(
+            text: Text(
+              '电话',
+              style: ts,
+            ),
+            icon: Icon(
+              Icons.phone,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ButtonWrapper(
+            text: '导航',
+            // icon: Icon( Icons.near_me,  color: Colors.grey ),
+            // icon: Transform.rotate( angle: 1 ,
+            // child:Icon( Icons.navigation,  color: Colors.grey ),
+            // )
+            icon: Transform(
+              origin: Offset(0, 0),
+              transform: Matrix4.identity()..rotateZ(40),
+              child: Icon(Icons.navigation, color: Colors.grey),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ButtonWrapper(
+            text: Text(
+              '分享',
+              style: ts,
+            ),
+            icon: Icon(
+              Icons.share,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      ],
     );
+  }
+}
+
+// 泛型, 继承 (如何多继承 T extends Text an String ????)
+class ButtonWrapper<T, I extends Widget> extends StatelessWidget {
+  final T text;
+  final I icon;
+  ButtonWrapper({this.text, this.icon});
+  Widget _textWidget() {
+    if (this.text is String) {
+      return Text(this.text as String);
+    }
+    return this.text as Widget;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[this.icon, _textWidget()]);
+  }
+}
+
+class TextContent extends StatelessWidget {
+  final String text = '''
+  3D/mali_winsys(28350): EGLint new_window_surface(egl_winsys_display *, void *, EGLSurface, EGLConfig, egl_winsys_surface **, EGLBoolean) returns 0x3000
+E/BpSurfaceComposerClient(28350): Failed to transact (-1)/n
+E/BpSurfaceComposerClient(28350): Failed to transact (-1)
+W/InputMethodManager(28350): startInputReason = 1
+D/ZrHung.AppEyeUiProbe(28350): stop checker.
+W/libEGL  (28350): EGLNativeWindowType 0x7bccd9e010 disconnect failed
+D/ViewRootImpl[MainActivity](28350): surface should not be released
+W/libEGL  (28350): EGLNativeWindowType 0x7bf47b2010 disconnect failed
+D/ZrHung.AppEyeUiProbe(28350): Current Activity:false
+D/ZrHung.AppEyeUiProbe(28350): not watching, wait.
+Reloaded 1 of 495 libraries in 1,415ms.
+''';
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.only(top: 16),
+        height: 100,
+        // child: Text(text),
+        child:
+        new CustomScrollView(shrinkWrap: false, slivers: <Widget>[
+          
+        // new  SliverPadding(
+        //     padding:const EdgeInsets.all(20),
+            new SliverList(
+                delegate:new SliverChildListDelegate(<Widget>[
+               Text(text),
+            ])),
+            
+          // )
+        ])
+        );
   }
 }
